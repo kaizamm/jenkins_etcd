@@ -1,0 +1,28 @@
+﻿使用说明
+准备工作：
+配置文件svn路径：
+https://qf-project-01.quark.com:8443/svn/Q-Deploy/scripts/jenkins_etcd
+提前将项目所需的配置文件放到svn上的配置文件目录下，如下
+AppCfgs/
+├── QUARK_PROD_QCREDIT-FRONTAL
+│   └── pboc_service
+│       └── WEB-INF
+│           └── classes
+│               ├── applicationContext.xml
+│               ├── datasource.properties
+│               ├── logback.xml
+│               ├── redis_config.properties
+│               ├── springContext_common.xml
+│               ├── springContext_httpClient.xml
+│               └── system.properties
+注：配置文件可以没有，没有配置文件，默认取代码中的配置文件
+
+jenkins pipeline 使用详情，可以参考git上的README
+http://git.quarkfinance.com/OPS/shareMaven
+http://git.quarkfinance.com/OPS/jenkins-pipeline-script
+
+另：项目所需的jenkinspipeline.properties文件，请各位大佬，确定一哈，到底放到哪里,确定好了，好协商各方，来准备正式发版了
+以后所有项目如果都是如dac项目一样，只需要检出一个trunk分支，就可以使用标准模板，无需修改,详情见dac_tsp.groovy
+如果有和qcredit项目一样特殊的，则需要自行添加步骤，详情见qcredit-frontal.groovy
+以上发布流程template，仅限于容器部署
+如果有实体机发布，可参考少泽他们的暖薪贷http://git.quarkfinance.com/ChenglanGuo/jenkins-pipeline-script
