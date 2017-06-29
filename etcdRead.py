@@ -10,4 +10,5 @@ def getValue(host,port,location):
     context=etcdCli.read(location).value
     return context
 
-getValue(host=sys.argv[1],port=int(sys.argv[2]),location=sys.argv[3])
+envValue=getValue(host=sys.argv[1],port=int(sys.argv[2]),location=sys.argv[3])
+print(envValue)
