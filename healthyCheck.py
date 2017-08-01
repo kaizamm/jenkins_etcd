@@ -11,7 +11,7 @@ def healthyCheck():
     else:
       print "healthy check not ok, status_code:%s" % code
       sys.exit("healthy check not ok")
-  except ReadTimeout:
-    print "HealthyCheckTimeout"
+  except Exception,e:
+    print "e"
 if __name__ == "__main__":
   healthyCheck()
