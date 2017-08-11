@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+
+
+	<jaxws:endpoint id="userService"
+		implementor="com.qf.assets.backend.common.service.impl.UserServiceImpl"
+		address="/userService" /> 
+
+	<!--  spring 配置 WebService wss4j 配置  -->
+	<!-- <jaxws:endpoint id="AssetsService"
+		implementor="com.qf.assets.backend.webService.impl.AssetsServiceImp"
+		address="/AssetsService">
+		<jaxws:inInterceptors>
+				<ref bean="wss4jInConfiguration" />
+		</jaxws:inInterceptors>
+
+	</jaxws:endpoint> -->
+	
+	
+	<!-- cxf wss4j security   cxf用户名认证 -->
+	<bean id="wss4jInConfiguration" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+		<constructor-arg>
+			<map>
+				<entry key="action" value="UsernameToken" />
+				<entry key="passwordType" value="PasswordText" />
+				<entry key="user" value="stone" />
+				<entry key="passwordCallbackRef">
+					<ref bean="serverPasswordCallback" />
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean id="serverPasswordCallback" class="com.qf.assets.backend.security.PasswordHandler" />
+</beans>

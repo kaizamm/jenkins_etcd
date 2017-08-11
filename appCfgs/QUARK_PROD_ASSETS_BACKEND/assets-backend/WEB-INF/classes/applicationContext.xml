@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd"
+	default-lazy-init="true">
+
+	<description>Spring公共配置 </description>
+
+	<!-- 使用annotation 自动注册bean, 并保证@Required、@Autowired的属性被注入 -->
+	<context:component-scan base-package="com.qf.assets.backend">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
+
+	<!-- Jpa Entity Manager 配置 -->
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter" ref="hibernateJpaVendorAdapter" />
+		<property name="packagesToScan" value="com.qf.assets.backend.**.entity" />
+		<property name="jpaProperties">
+			<props>
+				<!-- 命名规则 My_NAME->MyName -->
+				<prop key="hibernate.ejb.naming_strategy">org.hibernate.cfg.ImprovedNamingStrategy</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="hibernateJpaVendorAdapter"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<property name="databasePlatform">
+			<bean factory-method="getDialect" class="com.qf.modules.persistence.Hibernates">
+				<constructor-arg ref="dataSource" />
+			</bean>
+		</property>
+		<property name="showSql" value="false" /> 
+	</bean>
+	<!-- jdbc temple -->  
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">    
+        <property name="dataSource">    
+            <ref bean="dataSource"/>    
+        </property>    
+    </bean>  
+
+	<!-- Spring Data Jpa配置 -->
+	<jpa:repositories base-package="com.qf.assets.backend.**.repository"
+		transaction-manager-ref="transactionManager"
+		entity-manager-factory-ref="entityManagerFactory" />
+
+	<!-- Jpa 事务配置 -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!-- 使用annotation定义事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" />
+
+	<!-- JSR303 Validator定义 -->
+	<bean id="validator"
+		class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
+	<context:property-placeholder
+		ignore-unresolvable="true" location="classpath*:/application.properties" />
+		
+	<!-- <context:property-placeholder
+		ignore-unresolvable="true" location="classpath*:/ehcacheContext.xml" /> -->
+
+	<!-- 数据源配置, 使用c3p0 JDBC连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		>
+		<!-- Connection Info -->
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!--连接池中保留的最大连接数。默认值: 15 -->   
+        <property name="maxPoolSize" value="${jdbc.pool.maxPoolSize}"/>  
+		<!-- 连接池中保留的最小连接数，默认为：3-->  
+        <property name="minPoolSize" value="${jdbc.pool.minPoolSize}"/>  
+        <!-- 初始化连接池中的连接数，取值应在minPoolSize与maxPoolSize之间，默认为3-->  
+        <property name="initialPoolSize" value="${jdbc.pool.initialPoolSize}"/>  
+        <!--c3p0将建一张名为Test的空表，并使用其自带的查询语句进行测试。如果定义了这个参数那么属性preferredTestQuery将被忽略。你不能在这张Test表上进行任何操作，它将只供c3p0测试使用。默认值: null -->   
+        <property name="automaticTestTable" value="${jdbc.pool.automaticTestTable}"></property>
+        <!--最大空闲时间，多少秒内未使用则连接被丢弃。若为0则永不丢弃。默认值: 0 -->   
+        <property name="maxIdleTime" value="${jdbc.pool.maxIdleTime}"/>  
+        <!-- 当连接池连接耗尽时，客户端调用getConnection()后等待获取新连接的时间，超时后将抛出SQLException，如设为0则无限期等待。单位毫秒。默认: 0 -->   
+        <!--<property name="checkoutTimeout" value="${jdbc.pool.checkoutTimeout}"/>  -->  
+        <!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。默认值: 3 -->   
+        <!--<property name="acquireIncrement" value="${jdbc.pool.acquireIncrement}"/>   -->
+        <!--定义在从数据库获取新连接失败后重复尝试的次数。默认值: 30 ；小于等于0表示无限次-->   
+        <!--<property name="acquireRetryAttempts" value="${jdbc.pool.acquireRetryAttempts}"/>  -->
+        <!--重新尝试的时间间隔，默认为：1000毫秒-->   
+        <!--<property name="acquireRetryDelay" value="${jdbc.pool.acquireRetryDelay}" />  -->
+        <!--关闭连接时，是否提交未提交的事务，默认为false，即关闭连接，回滚未提交的事务 -->   
+        <!--<property name="autoCommitOnClose" value="${jdbc.pool.autoCommitOnClose}" />  -->
+	</bean>
+</beans>
