@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: zuul
+  cloud:
+    discovery.enabled: false
+    config:
+      profile: main
+      label: dev
+      uri: http://127.0.0.1:10000
+      username: user
+      password: xxxx
+#spring.cloud.discovery.enabled
+
+zuul.sensitiveHeaders: apiKey
+
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 60000
+  
+server:
+  port: 1111
+  tomcat:
+    max-threads: 3000
+  undertow:
+    worker-threads: 3000
+
+management.context-path: /manage
+endpoints:
+  enabled: false
+  sensitive: true
+  info.enabled: true
+  metrics.enabled: true
+  health.enabled: true
+  hystrix.stream.enabled: true
+  
+info:
+ description: "something always be there ."
+    
+discovery:
+  client:
+    #fixedDelay: 2000 #定义服务配置文件刷新间隔
+    cronString: "0/30 * * * * ?" #固定周期刷新配置。当前为每分钟两次，第0、30秒
+    
+qf:
+  config:
+    ServiceInstance: "http://cos.quarkfinance.com/api/serviceInstances/UP" #节点配置
+    ServiceConfig: "http://cos.quarkfinance.com/api/serviceConfigs" #服务配置
