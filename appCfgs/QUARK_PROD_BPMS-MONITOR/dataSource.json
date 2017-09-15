@@ -1,0 +1,5 @@
+{
+	"dataSourceList":[
+		{"db_datasouce_name": "tenant_ndes", "system_datasource_name":"ds_tenant_ndes"}
+	]
+}
